@@ -57,6 +57,10 @@ const config: HardhatUserConfig = {
 			url: 'https://hpbnode.com',
 			accounts: getDeploymentAccount(),
 		},
+		arbitrum: {
+			url: 'https://arb1.arbitrum.io/rpc',
+			accounts: getDeploymentAccount(),
+		},
 	},
 	gasReporter: {
 		enabled: true,
