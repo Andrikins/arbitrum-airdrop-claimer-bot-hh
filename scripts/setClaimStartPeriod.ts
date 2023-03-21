@@ -2,18 +2,18 @@ import { Wallet } from 'ethers'
 import { ethers } from 'hardhat'
 import { getTestTokenDistributor } from './getTokenDistributor'
 
-export async function setClaimPeriodStart(signer: Wallet): Promise<number> {
+export async function setClaimPeriodStart(signer: Wallet, blockNumber: number): Promise<number> {
+	const blockPad = 3
 	const setRecipientsParams = {
 		gasLimit: 500000,
 		gasPrice: (await ethers.provider.getGasPrice()).mul(3).div(2),
 	}
 
-	const currentBlockNumber = await ethers.provider.getBlockNumber()
 	const distributor = getTestTokenDistributor()
-	await distributor.connect(signer).setClaimPeriosStart(currentBlockNumber + 3, setRecipientsParams)
+	await distributor.connect(signer).setClaimPeriosStart(blockNumber + blockPad, setRecipientsParams)
 
-	console.log('Current block number is', currentBlockNumber)
-	console.log('Test claim will start at', currentBlockNumber + 3, ' block number')
+	console.log('Current block number is', blockNumber)
+	console.log('Test claim will start at', blockNumber + blockPad, ' block number')
 
-	return currentBlockNumber + 3
+	return blockNumber + blockPad
 }

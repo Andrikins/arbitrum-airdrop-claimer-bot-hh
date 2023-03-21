@@ -1,70 +1,54 @@
-import { Wallet } from 'ethers'
 import { checkEligibility } from './checkEligibility'
 import { getWallets } from './getSigners'
-import { getTestTokenDistributor } from './getTokenDistributor'
 import { setClaimPeriodStart } from './setClaimStartPeriod'
-import { sendTransactions, SignedTx } from './sendTxs'
+import { sendTransactions } from './sendTxs'
 import { Alchemy, Network } from 'alchemy-sdk'
-import chalk from 'chalk'
-import { ethers } from 'hardhat'
+import { showResultOfTxResponses } from './resultOfTxResponses'
+import { makeSignedTransactions } from './signTxs'
 
 const settings = {
-	apiKey: 'HsB4fDSdyA3KVJP2X9tpQOSRdUNF0SVl', // Replace with your Alchemy API KEY.
+	apiKey: '9cUljS71QQqjL_YUgMiHXtM9fo_6x_ug', // Replace with your Alchemy API KEY.
 	// (not https://... or ws://, just key)
-	network: Network.ARB_MAINNET,
+	network: Network.ETH_MAINNET,
 }
 
 const alchemy = new Alchemy(settings)
 
 let claimStartPeriod = 16890400
 
-const txParams = {
-	gasLimit: 500000000,
-	gasPrice: 1000000000,
-}
-
 async function batchClaimTest() {
-	const signers = await getWallets()
+	alchemy.ws.once('block', async (blockNumber) => {
+		const signers = await getWallets()
 
-	console.log('Setting claim period start ...')
-	claimStartPeriod = await setClaimPeriodStart(signers[0])
+		console.log('Setting claim period start ...')
+		claimStartPeriod = await setClaimPeriodStart(signers[0], blockNumber)
 
-	await checkEligibility(signers, true, true)
+		const eligibilityCheckResult = await checkEligibility(signers, true, true)
 
-	const signedTxs = await makeSignedTransactions(signers)
+		const signedTxs = await makeSignedTransactions(eligibilityCheckResult.eligibleAddresses)
+		console.log('All transactions are signed', signedTxs.length * 2, 'in total')
 
-	// Wait until block number
-	alchemy.ws.on('block', async (blockNumber) => {
-		console.log(blockNumber)
-		if (blockNumber >= claimStartPeriod) {
-			await new Promise((r) => setTimeout(r, 700))
-			const responses = await Promise.all(await sendTransactions(signedTxs))
-			console.log(responses)
-			alchemy.ws.removeAllListeners()
-		}
+		// Wait until block number
+		// let notFinished = true
+		console.log('Starting to wait for the', claimStartPeriod + 1, 'block...')
+
+		alchemy.ws.on('block', async (blockNumber) => {
+			console.log(blockNumber)
+			if (blockNumber >= claimStartPeriod + 1) {
+				// Replace with
+				// await new Promise((r) => setTimeout(r, 3000))
+				const responses = await Promise.all(await sendTransactions(signedTxs))
+				alchemy.ws.removeAllListeners()
+				await showResultOfTxResponses(responses)
+				console.log('All done!')
+				process.exit(0)
+			}
+		})
 	})
 }
 
-async function makeSignedTransactions(signers: Wallet[]): Promise<SignedTx[]> {
-	const txs = []
-
-	for (const signer of signers) {
-		try {
-			const tokenDistributor = getTestTokenDistributor()
-			const unsignedTx = await tokenDistributor.connect(signer).populateTransaction.claim(txParams)
-			const signedTx = await signer.signTransaction(unsignedTx)
-			txs.push(signedTx)
-		} catch (error) {
-			console.log(chalk.red('Unable to sign tx', signer.address))
-		}
-	}
-
-	return txs
-}
-
-batchClaimTest()
-	.then(() => process.exit(0))
-	.catch((error) => {
-		console.log(error)
-		process.exit(1)
-	})
+batchClaimTest().catch((error) => {
+	console.log(error)
+	alchemy.ws.removeAllListeners()
+	process.exit(1)
+})
