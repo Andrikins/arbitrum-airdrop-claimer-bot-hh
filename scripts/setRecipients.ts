@@ -10,7 +10,7 @@ export async function setRecipients(signers: Wallet[]): Promise<void> {
 
 	const txParams = {
 		gasLimit: 487000 + signers.length * 700000,
-		gasPrice: (await ethers.provider.getGasPrice()).mul(3).div(2),
+		gasPrice: await ethers.provider.getGasPrice(),
 	}
 
 	for (let i = 0; i < signers.length; i += 25) {

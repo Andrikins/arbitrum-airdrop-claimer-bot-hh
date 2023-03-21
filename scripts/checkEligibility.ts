@@ -53,6 +53,8 @@ export async function checkEligibility(
 		if (isTestCall) {
 			await setRecipients(signers as Wallet[])
 			console.log('Recipients set in test contract')
+		} else {
+			throw Error('No eligible account to claim tokens!')
 		}
 	}
 

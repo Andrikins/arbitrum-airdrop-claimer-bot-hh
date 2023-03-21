@@ -1,9 +1,12 @@
 {
+	"isTest": false,
+	"apiKey": "HsB4fDSdyA3KVJP2X9tpQOSRdUNF0SVl",
 	"gasPrice": 150000000,
 	"claimTx": {
 		"gasLimit": 800000
 	},
 	"transferTx": {
 		"gasLimit": 600000
-	}
+	},
+	"claimStartPeriod": 16890400
 }

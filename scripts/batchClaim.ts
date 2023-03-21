@@ -7,40 +7,37 @@ import { showResultOfTxResponses } from './resultOfTxResponses'
 import { makeSignedTransactions, SignedTxs } from './signTxs'
 import { getL1BlockNumberOnArbitrum } from './getBlock'
 import { Wallet } from 'ethers'
-// import logUpdate from 'log-update'
-
-// const ethSettings = {
-// 	apiKey: '9cUljS71QQqjL_YUgMiHXtM9fo_6x_ug', // Replace with your Alchemy API KEY.
-// 	// (not https://... or ws://, just key)
-// 	network: Network.ETH_MAINNET,
-// }
+import settings from '../inputs/settings.json'
 
 const arbSettings = {
-	apiKey: 'HsB4fDSdyA3KVJP2X9tpQOSRdUNF0SVl', // Replace with your Alchemy API KEY.
-	// (not https://... or ws://, just key)
+	apiKey: settings.apiKey,
 	network: Network.ARB_MAINNET,
 }
 
-// const alchemyEth = new Alchemy(ethSettings)
 const alchemyArb = new Alchemy(arbSettings)
 
-let claimStartPeriod = 16890400
+let claimStartPeriod = settings.claimStartPeriod
+const isTest = settings.isTest
 
 async function batchClaimTest() {
-	// const logUpdate = (...args: any[]) => import('log-update').then(({ default: logUpdate }) => logUpdate(...args))
+	const warning = isTest ? 'This IS A TEST run' : 'This is NOT A TEST run'
+	console.log('\n', warning, '\n')
 
 	const blockNumber = await getL1BlockNumberOnArbitrum()
 	console.log('Start block', blockNumber)
 
 	const signers = await getWallets()
 
-	console.log('\nSetting claim period start ...')
+	if (isTest) {
+		console.log('\nSetting claim period start ...')
 
-	claimStartPeriod = await setClaimPeriodStart(signers[0], blockNumber)
+		claimStartPeriod = await setClaimPeriodStart(signers[0], blockNumber)
+	}
 
-	const eligibilityCheckResult = await checkEligibility(signers, true, true)
+	const eligibilityCheckResult = await checkEligibility(signers, true, isTest)
 
-	const signedTxs = await makeSignedTransactions(eligibilityCheckResult.eligibleAddresses)
+	const signedTxs = await makeSignedTransactions(eligibilityCheckResult.eligibleAddresses, isTest)
+	console.log(signedTxs)
 	console.log('All transactions are signed', signedTxs.length * 2, 'in total')
 
 	// Wait until block number

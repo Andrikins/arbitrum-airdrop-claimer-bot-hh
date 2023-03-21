@@ -1,6 +1,6 @@
 import { Overrides, Wallet } from 'ethers'
-import { getTestToken } from './getToken'
-import { getTestTokenDistributor } from './getTokenDistributor'
+import { getTestToken, getToken } from './getToken'
+import { getTestTokenDistributor, getTokenDistributor } from './getTokenDistributor'
 import receiversAddresses from '../inputs/receiversAddresses.json'
 import settings from '../inputs/settings.json'
 
@@ -9,7 +9,7 @@ export interface SignedTxs {
 	signedTransfer: string
 }
 
-export async function makeSignedTransactions(signers: Wallet[]): Promise<SignedTxs[]> {
+export async function makeSignedTransactions(signers: Wallet[], isTestCall: boolean): Promise<SignedTxs[]> {
 	const txs: SignedTxs[] = []
 
 	const claimParams: Overrides = settings.claimTx
@@ -17,8 +17,8 @@ export async function makeSignedTransactions(signers: Wallet[]): Promise<SignedT
 
 	for (const [index, signer] of signers.entries()) {
 		try {
-			const tokenDistributor = getTestTokenDistributor()
-			const token = getTestToken()
+			const tokenDistributor = isTestCall ? getTestTokenDistributor() : getTokenDistributor()
+			const token = isTestCall ? getTestToken() : getToken()
 
 			const nonce = await signer.getTransactionCount()
 			claimParams.nonce = nonce

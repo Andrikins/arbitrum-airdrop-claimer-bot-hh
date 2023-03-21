@@ -4,9 +4,10 @@ import { getTestTokenDistributor } from './getTokenDistributor'
 
 export async function setClaimPeriodStart(signer: Wallet, blockNumber: number): Promise<number> {
 	const blockPad = 3
+
 	const setRecipientsParams = {
 		gasLimit: 800000,
-		gasPrice: (await ethers.provider.getGasPrice()).mul(3).div(2),
+		gasPrice: await ethers.provider.getGasPrice(),
 	}
 
 	const distributor = getTestTokenDistributor()
