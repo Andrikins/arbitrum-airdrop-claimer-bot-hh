@@ -1,10 +1,13 @@
 import { BigNumber } from 'ethers'
 import { ClaimAndTransferResponses } from './sendTxs'
 
-export async function showResultOfTxResponses(responses: ClaimAndTransferResponses[]): Promise<void> {
-	console.log('\n\n')
+export async function showResultOfTxResponses(
+	responses: ClaimAndTransferResponses[]
+	// signers: Wallet[]
+): Promise<void> {
+	console.log('\n')
 	console.log('______________________________________________________________')
-	console.log(`Address                                    | Cl | Tr | Amount`)
+	console.log(`Address                                    | Cl | Tr | Amount | Fail reason?`)
 	console.log('______________________________________________________________')
 
 	// 0xcd7923fd9D79CFBe92Cf43df8d3EAdB71622fEdf | ✓ | ✓ | 0
@@ -13,7 +16,7 @@ export async function showResultOfTxResponses(responses: ClaimAndTransferRespons
 		const transfer = await claimAndTransfer[1]
 
 		let claimResult = '🗙'
-		let transferResult = '✓'
+		let transferResult = '🗙'
 
 		try {
 			const claimReceipt = await claim.wait()
@@ -27,12 +30,9 @@ export async function showResultOfTxResponses(responses: ClaimAndTransferRespons
 			console.log(`${claimReceipt.from} | ${claimResult}  | ${transferResult}  | ${amount}`)
 			// console.log(`[${receipt.status ? '✓ succ' : '🗙 fail'}]`, 'to get from', receipt.from, 1000, 'tokens')
 		} catch (error) {
-			const delimiter = '-------------------------------------------------------------'
-
-			console.log(`${claim.from} | ${claimResult} | ${transferResult}`)
-			console.log('Reason:', (error as any).reason)
-			console.log('Code:', (error as any).code)
-			console.log(delimiter)
+			// const delimiter = '-------------------------------------------------------------'
+			// console.log(`${signers[index].address} | ${claimResult} | ${transferResult}`)
+			// console.log(delimiter)
 		}
 	}
 	console.log('______________________________________________________________')

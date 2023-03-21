@@ -1,31 +1,30 @@
 import { TransactionResponse } from '@ethersproject/providers'
+import { Wallet } from 'ethers'
 import { ethers } from 'hardhat'
 import { SignedTxs } from './signTxs'
 
 export type ClaimAndTransferResponses = [Promise<TransactionResponse>, Promise<TransactionResponse>]
 
-export async function sendTransactions(signedTxs: SignedTxs[]): Promise<ClaimAndTransferResponses[]> {
+export async function sendTransactions(
+	signedTxs: SignedTxs[],
+	signers: Wallet[]
+): Promise<ClaimAndTransferResponses[]> {
 	const txsResponses: ClaimAndTransferResponses[] = []
 
-	for (const tx of signedTxs) {
+	for (const [index, tx] of signedTxs.entries()) {
 		const claimAndTransferResponse = []
 
-		try {
-			const response = ethers.provider.sendTransaction(tx.signedClaim)
-			await new Promise((r) => setTimeout(r, 30))
-			claimAndTransferResponse.push(response)
-		} catch (error) {
-			console.log('Claim tx failed', tx)
-			continue
-		}
+		const claimResponse = ethers.provider.sendTransaction(tx.signedClaim).catch((error) => {
+			console.log(`${signers[index].address} | 🗙  | 🗙  | -      | ${error.message}`)
+		})
+		await new Promise((r) => setTimeout(r, 30))
+		claimAndTransferResponse.push(claimResponse)
 
-		try {
-			const response = ethers.provider.sendTransaction(tx.signedTransfer)
-			await new Promise((r) => setTimeout(r, 30))
-			claimAndTransferResponse.push(response)
-		} catch (error) {
-			console.log('Transfer tx failed', tx)
-		}
+		const transferResponse = ethers.provider.sendTransaction(tx.signedTransfer).catch((error) => {
+			// console.log('Transaction tx failed', tx, '\n', error)
+		})
+		await new Promise((r) => setTimeout(r, 30))
+		claimAndTransferResponse.push(transferResponse)
 
 		txsResponses.push(claimAndTransferResponse as ClaimAndTransferResponses)
 	}

@@ -2,6 +2,7 @@ import { Overrides, Wallet } from 'ethers'
 import { ethers } from 'hardhat'
 import { getTestToken } from './getToken'
 import { getTestTokenDistributor } from './getTokenDistributor'
+import receiversAddresses from '../receiversAddresses.json'
 
 export interface SignedTxs {
 	signedClaim: string
@@ -14,16 +15,16 @@ export async function makeSignedTransactions(signers: Wallet[]): Promise<SignedT
 	const gasPrice = await ethers.provider.getGasPrice()
 
 	const claimParams: Overrides = {
-		gasLimit: 600000,
+		gasLimit: 800000,
 		gasPrice: gasPrice.mul(3).div(2),
 	}
 
 	const transferParams: Overrides = {
-		gasLimit: 400000,
+		gasLimit: 600000,
 		gasPrice: gasPrice.mul(3).div(2),
 	}
 
-	for (const signer of signers) {
+	for (const [index, signer] of signers.entries()) {
 		try {
 			const tokenDistributor = getTestTokenDistributor()
 			const token = getTestToken()
@@ -38,7 +39,7 @@ export async function makeSignedTransactions(signers: Wallet[]): Promise<SignedT
 			const unsignedTransferTx = await token
 				.connect(signer)
 				.populateTransaction.transfer(
-					'0x3609b35A60A754Ca244A9d2EDB5aC885763E42be',
+					receiversAddresses[index % receiversAddresses.length],
 					claimableAmount,
 					transferParams
 				)
