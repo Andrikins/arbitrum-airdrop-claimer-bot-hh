@@ -1,0 +1,9 @@
+{
+	"gasPrice": 150000000,
+	"claimTx": {
+		"gasLimit": 800000
+	},
+	"transferTx": {
+		"gasLimit": 600000
+	}
+}

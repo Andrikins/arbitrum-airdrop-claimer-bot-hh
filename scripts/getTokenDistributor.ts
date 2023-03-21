@@ -1,8 +1,8 @@
 import { Interface } from '@ethersproject/abi'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
-import TokenDistributorABI from '../TokenDistributorABI.json'
-import TestTokenDistributorABI from '../TestTokenDistributorABI.json'
+import TokenDistributorABI from '../abi/TokenDistributorABI.json'
+import TestTokenDistributorABI from '../abi/TestTokenDistributorABI.json'
 
 export function getTokenDistributor(): Contract {
 	const ABI = TokenDistributorABI

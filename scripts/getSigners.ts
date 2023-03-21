@@ -1,6 +1,6 @@
 import { Wallet } from 'ethers'
 import { ethers } from 'hardhat'
-import * as pks from '../pks.json'
+import * as pks from '../inputs/pks.json'
 
 export async function getWallets(): Promise<Wallet[]> {
 	// const pks = await getPrivateKeys()
@@ -17,7 +17,7 @@ export async function getWallets(): Promise<Wallet[]> {
 
 	const signers = getSigners(pksArray)
 
-	console.log('Total Wallets', signers.length)
+	console.log('Total Wallets', signers.length, '\n')
 	return signers
 }
 

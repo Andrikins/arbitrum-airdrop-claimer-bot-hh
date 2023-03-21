@@ -14,6 +14,7 @@ export async function setClaimPeriodStart(signer: Wallet, blockNumber: number): 
 
 	console.log('Current block number is', blockNumber)
 	console.log('Test claim will start at', blockNumber + blockPad, ' block number')
+	console.log('\n')
 
 	return blockNumber + blockPad
 }

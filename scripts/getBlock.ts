@@ -1,6 +1,6 @@
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
-import MultiCallABI from '../MultiCallContractABI.json'
+import MultiCallABI from '../abi/MultiCallContractABI.json'
 
 export async function getL1BlockNumberOnArbitrum(): Promise<number> {
 	const ABI = MultiCallABI
